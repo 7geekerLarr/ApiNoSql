@@ -30,7 +30,7 @@ namespace ApiNoSqlApplication.Client.QueryHandlers
                 {
                     throw new HandleException(HttpStatusCode.NotFound, new { GySistemas = "No hay clientes cargados en estos momentos!" });
                 }
-                return result?.OrderBy(x => x.name).ToList() ?? new List<ClientModels>();
+                return result?.OrderBy(x => x.Name).ToList() ?? new List<ClientModels>();
             }
         }
         #endregion

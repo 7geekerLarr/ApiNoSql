@@ -2,39 +2,56 @@
 using ApiNoSqlInfraestructure.Data;
 using ApiNoSqlInfraestructure.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Configuration;
 
 namespace ApiNoSqlInfraestructure.Services
 {
     public class MyAppServiceDB
     {
         private readonly IClients _clientsRepository;
-
-        public MyAppServiceDB(IClients clientsRepository, ClientsRepositoryConfiguration config)
+        public MyAppServiceDB(IClients clientsRepository, IConfiguration config)
         {
-            if (config.Type == ClientsRepositoryConfiguration.RepositoryType.SqlServer)
+            var repositoryConfig = new ClientsRepositoryConfiguration();
+            config.GetSection("ClientsRepository").Bind(repositoryConfig);
+
+            if (repositoryConfig.Type == ClientsRepositoryConfiguration.RepositoryType.SqlServer)
             {
                 var optionsBuilder = new DbContextOptionsBuilder<ClientsContext>();
-                optionsBuilder.UseSqlServer(config.ConnectionString);
+                optionsBuilder.UseSqlServer(repositoryConfig.ConnectionString);
                 var dbContextOptions = optionsBuilder.Options;
 
                 _clientsRepository = new ClientsSqlRepository(new ClientsContext(dbContextOptions));
-
             }
-            else if (config.Type == ClientsRepositoryConfiguration.RepositoryType.MongoDB)
+            else if (repositoryConfig.Type == ClientsRepositoryConfiguration.RepositoryType.MongoDB)
             {
-                _clientsRepository = new ClientsMongoRepository();
+                _clientsRepository = new ClientsMongoRepository(config);
             }
             else
             {
-                throw new ArgumentException($"Tipo de repositorio no válido: {config.Type}", nameof(config));
+                throw new ArgumentException($"Tipo de repositorio no válido: {repositoryConfig.Type}", nameof(config));
             }
         }
+        //public MyAppServiceDB(IClients clientsRepository, ClientsRepositoryConfiguration config)
+        //{
+        //    if (config.Type == ClientsRepositoryConfiguration.RepositoryType.SqlServer)
+        //    {
+        //        var optionsBuilder = new DbContextOptionsBuilder<ClientsContext>();
+        //        optionsBuilder.UseSqlServer(config.ConnectionString);
+        //        var dbContextOptions = optionsBuilder.Options;
+
+        //        _clientsRepository = new ClientsSqlRepository(new ClientsContext(dbContextOptions));
+
+        //    }
+        //    else if (config.Type == ClientsRepositoryConfiguration.RepositoryType.MongoDB)
+        //    {
+        //        _clientsRepository = new ClientsMongoRepository();
+        //    }
+
+        //    else
+        //    {
+        //        throw new ArgumentException($"Tipo de repositorio no válido: {config.Type}", nameof(config));
+        //    }
+        //}
 
         public async Task<List<ClientModels>?> GetAll()
         {

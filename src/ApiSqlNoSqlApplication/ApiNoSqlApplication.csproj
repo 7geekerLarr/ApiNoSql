@@ -11,11 +11,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Client\Commands\" />
-    <Folder Include="Client\CommandHandlers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ApiSqlNoSqlDomain\ApiNoSqlDomain.csproj" />
     <ProjectReference Include="..\ApiSqlNoSqlInfraestructure\ApiNoSqlInfraestructure.csproj" />
   </ItemGroup>
