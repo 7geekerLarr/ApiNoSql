@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.5.1" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjectionFixed" Version="5.1.2" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Client\Commands\" />
+    <Folder Include="Client\CommandHandlers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ApiSqlNoSqlDomain\ApiNoSqlDomain.csproj" />
+    <ProjectReference Include="..\ApiSqlNoSqlInfraestructure\ApiNoSqlInfraestructure.csproj" />
+  </ItemGroup>
+
+</Project>
