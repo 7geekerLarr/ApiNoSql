@@ -16,22 +16,15 @@ namespace ApiNoSqlDomain.Client
     }
     public class ClientModels
     {
-        
-        [BsonElement("clienteid")]
+
+       
         public string? ClientId { get; set; }
-        [BsonElement("level")]
         public int Level { get; set; }
-        [BsonElement("tipo")]
         public string? Tipo { get; set; }
-        [BsonElement("name")]
         public string? Name { get; set; }
-        [BsonElement("lastname")]
         public string? Lastname { get; set; }
-        [BsonElement("dni")]
         public string? Dni { get; set; }
-        [BsonElement("nrocliente")]
         public string? NroCliente { get; set; }
-        [BsonElement("birthdate")]
         public System.DateTime Birthdate { get; set; }
 
     }

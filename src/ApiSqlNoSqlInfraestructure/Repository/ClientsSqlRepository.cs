@@ -1,13 +1,7 @@
 ﻿using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Data;
-using ApiNoSqlInfraestructure.Services;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using IClients = ApiNoSqlInfraestructure.Services.IClients;
 
 namespace ApiNoSqlInfraestructure.Repository
 {
@@ -25,7 +19,7 @@ namespace ApiNoSqlInfraestructure.Repository
         #region GetAll
         public async Task<List<ClientModels>?> GetAll()
         {
-            return await context.Client.ToListAsync();            
+            return await context.Clients.ToListAsync();            
         }
         #endregion
         #region Add
@@ -41,6 +35,7 @@ namespace ApiNoSqlInfraestructure.Repository
                     Name = entity.Name,
                     Lastname = entity.Lastname,
                     Dni = entity.Dni,
+                    NroCliente= entity.NroCliente,
                     Birthdate = entity.Birthdate
 
                 };
@@ -60,7 +55,7 @@ namespace ApiNoSqlInfraestructure.Repository
         {
             try
             {
-                var client = await context.Client.FirstOrDefaultAsync(c=> c.ClientId== Id);
+                var client = await context.Clients.FirstOrDefaultAsync(c=> c.ClientId== Id);
                 return client;
             }
             catch (Exception)
@@ -75,7 +70,7 @@ namespace ApiNoSqlInfraestructure.Repository
         {
             try
             {
-                var client = await context.Client.FindAsync(entity.ClientId);
+                var client = await context.Clients.FindAsync(entity.ClientId);
                 if (client == null)
                 {
                     return false;
@@ -85,6 +80,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 client.Name = entity.Name;
                 client.Lastname = entity.Lastname;
                 client.Dni = entity.Dni;
+                client.NroCliente = entity.NroCliente;
                 client.Birthdate = entity.Birthdate;
 
                 await context.SaveChangesAsync();
@@ -103,7 +99,11 @@ namespace ApiNoSqlInfraestructure.Repository
         {
             try
             {
-                var client = await context.Client.FirstAsync(c => c.ClientId == Id, CancellationToken.None);
+                var client = await context.Clients.FirstAsync(c => c.ClientId == Id, CancellationToken.None);
+                if (client == null)
+                {
+                    return false;
+                }
                 context.Remove(client);
                 await context.SaveChangesAsync();
                 return true;

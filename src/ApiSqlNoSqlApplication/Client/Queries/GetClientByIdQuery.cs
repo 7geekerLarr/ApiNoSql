@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace ApiNoSqlApplication.Client.Queries
 {
-    public class GetClientByIdQuery
+    public class GetClientByIdQuery : IRequest<ClientModels>
     {
-        #region Execute
-        public class GetSystemById : IRequest<ClientModels>
-        {
-            public string? ClientId { get; set; }
-        }
+        #region GetClientByIdQuery
+
+        public string? ClientId { get; set; }
+
         #endregion
     }
 }

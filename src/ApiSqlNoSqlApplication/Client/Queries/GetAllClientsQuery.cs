@@ -8,13 +8,10 @@ using System.Threading.Tasks;
 
 namespace ApiNoSqlApplication.Client.Queries
 {
-    public class GetAllClientsQuery
+    public class GetAllClientsQuery : IRequest<List<ClientModels>>
     {
-        #region ExecuteList       
-        public class GetAllClients : IRequest<List<ClientModels>>
-        {
-
-        }
+        #region GetAllClientsQuery       
+       
         #endregion
     }
 }

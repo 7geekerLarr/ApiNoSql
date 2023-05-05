@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace ApiNoSqlApplication.Client.Commands
 {
-    public class DeleteClientCommand
+    public class DeleteClientCommand : IRequest
     {
-        public class DeleteClient : IRequest
-        {
+       
             public string? ClientId { get; set; }
-        }
+        
        
     }
 }

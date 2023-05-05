@@ -7,14 +7,17 @@ namespace ApiNoSqlInfraestructure.Data
     {
         public ClientsContext(DbContextOptions<ClientsContext> options) : base(options) { }
 
-        
+        public DbSet<ClientModels> Clients { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<ClientModels>().HasKey(cm => new { cm.Name });            
+            modelBuilder.Entity<ClientModels>().HasKey(cm => cm.ClientId);
         }
-        public DbSet<ClientModels> Client { get; set; }
-       // public DbSet<PersonModels> People { get; set; }
+
+        public void EnsureClientTableCreated()
+        {
+            Database.EnsureCreated();
+        }
     }
 }

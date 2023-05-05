@@ -1,6 +1,7 @@
 ﻿using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Data;
 using ApiNoSqlInfraestructure.Repository;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -9,7 +10,8 @@ namespace ApiNoSqlInfraestructure.Services
     public class MyAppServiceDB
     {
         private readonly IClients _clientsRepository;
-        public MyAppServiceDB(IClients clientsRepository, IConfiguration config)
+
+        public MyAppServiceDB(IClients clientsRepository, IConfiguration config, IMapper mapper, IClients clientsMongoRepository)
         {
             var repositoryConfig = new ClientsRepositoryConfiguration();
             config.GetSection("ClientsRepository").Bind(repositoryConfig);
@@ -24,34 +26,13 @@ namespace ApiNoSqlInfraestructure.Services
             }
             else if (repositoryConfig.Type == ClientsRepositoryConfiguration.RepositoryType.MongoDB)
             {
-                _clientsRepository = new ClientsMongoRepository(config);
+                _clientsRepository = clientsMongoRepository;
             }
             else
             {
                 throw new ArgumentException($"Tipo de repositorio no válido: {repositoryConfig.Type}", nameof(config));
             }
         }
-        //public MyAppServiceDB(IClients clientsRepository, ClientsRepositoryConfiguration config)
-        //{
-        //    if (config.Type == ClientsRepositoryConfiguration.RepositoryType.SqlServer)
-        //    {
-        //        var optionsBuilder = new DbContextOptionsBuilder<ClientsContext>();
-        //        optionsBuilder.UseSqlServer(config.ConnectionString);
-        //        var dbContextOptions = optionsBuilder.Options;
-
-        //        _clientsRepository = new ClientsSqlRepository(new ClientsContext(dbContextOptions));
-
-        //    }
-        //    else if (config.Type == ClientsRepositoryConfiguration.RepositoryType.MongoDB)
-        //    {
-        //        _clientsRepository = new ClientsMongoRepository();
-        //    }
-
-        //    else
-        //    {
-        //        throw new ArgumentException($"Tipo de repositorio no válido: {config.Type}", nameof(config));
-        //    }
-        //}
 
         public async Task<List<ClientModels>?> GetAll()
         {
@@ -78,5 +59,4 @@ namespace ApiNoSqlInfraestructure.Services
             return await _clientsRepository.Del(Id);
         }
     }
-
 }

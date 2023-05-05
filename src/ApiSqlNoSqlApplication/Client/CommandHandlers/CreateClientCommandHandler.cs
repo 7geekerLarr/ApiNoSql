@@ -1,69 +1,65 @@
-﻿using ApiNoSqlApplication.HandleError;
+﻿using ApiNoSqlApplication.Client.Commands;
+using ApiNoSqlApplication.HandleError;
 using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Services;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using static ApiNoSqlApplication.Client.Commands.CreateClientCommand;
+using IClients = ApiNoSqlInfraestructure.Services.IClients;
 
 namespace ApiNoSqlApplication.Client.CommandHandlers
 {
-    public class CreateClientCommandHandler
+    public class CreateClientCommandHandler : IRequestHandler<CreateClientCommand, ClientModels>
     {
 
-        #region HandlerClass
-        public class HandlerClass : IRequestHandler<CreateSystem, ClientModels>
+        #region CreateClientCommandHandler
+
+        private readonly IClients _clientsRepository;
+        public CreateClientCommandHandler(IClients clientsRepository)
         {
-            private readonly IClients _clientsRepository;
-            public HandlerClass(IClients clientsRepository)
+            _clientsRepository = clientsRepository;
+        }
+        public async Task<ClientModels> Handle(CreateClientCommand request, CancellationToken cancellationToken)
+        {
+            #region entity           
+            var entity = new ClientModels()
             {
-                _clientsRepository = clientsRepository;
-            }
-            public async Task<ClientModels> Handle(CreateSystem request, CancellationToken cancellationToken)
+                ClientId = request.ClientId,
+                Level = request.Level,
+                Tipo = request.Tipo,
+                Name = request.Name,
+                Lastname = request.Lastname,
+                Dni = request.Dni,
+                Birthdate = request.Birthdate,
+                NroCliente = request.NroCliente
+            };
+            #endregion
+            #region Validaciones
+            if (entity == null)
             {
-                ClientModels entity = new ClientModels();
-                entity.ClientId = request.ClientId;
-                entity.Level = request.Level;
-                entity.Tipo = request.Tipo;
-                entity.Name = request.Name;
-                entity.Lastname = request.Lastname;
-                entity.Dni = request.Dni;
-                entity.Birthdate = request.Birthdate;
-                entity.NroCliente = request.NroCliente;
-
-                if (entity == null)
-                {
-                    throw new HandleException(HttpStatusCode.BadRequest, new { GySistemas = "La estructura no es correcta!" });
-                }
-                if (entity.ClientId == "0")
-                {
-                    throw new HandleException(HttpStatusCode.BadRequest, new { GySistemas = "La estructura no es correcta!" + entity.ClientId });
-                }
-                if (entity.ClientId == null || entity.Name == null)
-                {
-                    throw new HandleException(HttpStatusCode.BadRequest, new { GySistemas = "La estructura no es correcta!" });
-                }
-                if (entity.ClientId == "" || entity.Name == "")
-                {
-                    throw new HandleException(HttpStatusCode.BadRequest, new { GySistemas = "Campos obligatotios:IdSystem y Name, La estructura no es correcta!" });
-                }
-                var result = await _clientsRepository.Add(entity);
-                if (result)
-                {
-                    return entity;
-                }
-                else
-                {
-                    throw new HandleException(HttpStatusCode.NotImplemented, new { GySistemas = "Error, Sistema no ha sido creado!" });
-                }
-
+                throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "La estructura no es correcta!" });
             }
-
-
+            if (Convert.ToInt32(entity.ClientId) == 0)
+            {
+                throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "La estructura no es correcta!" + entity.ClientId });
+            }
+            if (entity.ClientId == null || entity.Name == null)
+            {
+                throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "La estructura no es correcta!" });
+            }
+            if (entity.ClientId == "" || entity.Name == "")
+            {
+                throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "Campos obligatotios:IdSystem y Name, La estructura no es correcta!" });
+            }
+            var result = await _clientsRepository.Add(entity);
+            if (result)
+            {
+                return entity;
+            }
+            else
+            {
+                throw new HandleException(HttpStatusCode.NotImplemented, new { Cliente = "Error, Sistema no ha sido creado!" });
+            }
+            #endregion
         }
         #endregion
     }

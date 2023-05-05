@@ -1,4 +1,5 @@
-﻿using ApiNoSqlApplication.HandleError;
+﻿using ApiNoSqlApplication.Client.Commands;
+using ApiNoSqlApplication.HandleError;
 using ApiNoSqlInfraestructure.Services;
 using MediatR;
 using System.Net;
@@ -6,17 +7,16 @@ using static ApiNoSqlApplication.Client.Commands.DeleteClientCommand;
 
 namespace ApiNoSqlApplication.Client.CommandHandlers
 {
-    public class DeleteClientCommandHandler
+    public class DeleteClientCommandHandler : IRequestHandler<DeleteClientCommand>
     {
-        #region HandlerClass
-        public class HandlerClass : IRequestHandler<DeleteClient>
-        {
-            private readonly IClients _clientsRepository;
-            public HandlerClass(IClients clientsRepository)
+        #region DeleteClientCommandHandler
+
+        private readonly IClients _clientsRepository;
+            public DeleteClientCommandHandler(IClients clientsRepository)
             {
                 _clientsRepository = clientsRepository;
             }
-            public async Task<Unit> Handle(DeleteClient request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(DeleteClientCommand request, CancellationToken cancellationToken)
             {
                 if (request.ClientId == "0")
                 {
@@ -31,16 +31,13 @@ namespace ApiNoSqlApplication.Client.CommandHandlers
                 if (resul)
                 {
                     return Unit.Value;
-                }
-                else
-                {
-                    throw new HandleException(HttpStatusCode.NotImplemented, new { Cliente = "Error, Cliente no ha sido borrado  (Id: " + request.ClientId + ")" });
-                }
+                }                
+                throw new Exception("Error, Cliente no ha sido borrado  (Id: " + request.ClientId + ")" );               
 
             }
 
 
-        }
+         
         #endregion
     }
 }

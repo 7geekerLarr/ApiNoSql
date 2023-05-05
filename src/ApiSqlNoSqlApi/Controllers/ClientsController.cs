@@ -27,7 +27,7 @@ namespace ApiNoSqlApi.Controllers
         public async Task<IActionResult> Get()
         {
 
-            var resultado = await _mediator.Send(new GetAllClientsQuery.GetAllClients());
+            var resultado = await _mediator.Send(new GetAllClientsQuery());
             return Ok(resultado);
         }
         #endregion
@@ -36,10 +36,9 @@ namespace ApiNoSqlApi.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Add(CreateClientCommand.CreateSystem data)
+        public async Task<IActionResult> Add(CreateClientCommand data)
         {
-            var registerToReturn = await _mediator.Send(data);
-            //return Ok(registerToReturn);
+            var registerToReturn = await _mediator.Send(data);           
             return CreatedAtRoute("GetOne", new { id = registerToReturn.ClientId }, registerToReturn);
         }
         #endregion
@@ -51,7 +50,7 @@ namespace ApiNoSqlApi.Controllers
 
         public async Task<IActionResult> GetOne(int id)
         {
-            var resultado = await _mediator.Send(new GetClientByIdQuery.GetSystemById { ClientId = id.ToString() });
+            var resultado = await _mediator.Send(new GetClientByIdQuery { ClientId = id.ToString() });
             return Ok(resultado);
         }
         #endregion
@@ -63,7 +62,7 @@ namespace ApiNoSqlApi.Controllers
         public async Task<IActionResult> Del(int id)
         {
 
-            var resultado = await _mediator.Send(new DeleteClientCommand.DeleteClient { ClientId = id.ToString() });
+            var resultado = await _mediator.Send(new DeleteClientCommand { ClientId = id.ToString() });
             return NoContent();
         }
         #endregion
@@ -72,7 +71,7 @@ namespace ApiNoSqlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Upd([FromBody] UpdateClientCommand.UpdateClient data)
+        public async Task<IActionResult> Upd([FromBody] UpdateClientCommand data)
         {
             await _mediator.Send(data);
             return NoContent();
