@@ -11,10 +11,6 @@ namespace ApiNoSqlInfraestructure.Entitys
         public string? ClientId { get; set; }
         public int Level { get; set; }
         public string? Tipo { get; set; }
-        public string? Name { get; set; }
-        public string? Lastname { get; set; }
-        public string? Dni { get; set; }
-        public string? NroCliente { get; set; }
-        public System.DateTime Birthdate { get; set; }
+        public PersonModelsSQL? Person { get; set; }
     }
 }

@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿ 
 
 namespace ApiNoSqlDomain.Client
 {
     public class PersonModels
     {
-        public int personid { get; set; }
-        public string? name { get; set; }
-        public string? lastname { get; set; }
-        public int dni { get; set; }
-        public System.DateTime birthdate { get; set; }
-
-        public List<ClientModels>? Clients { get; set; }
-
+            
+        public string? Name { get; set; }
+        public string? Lastname { get; set; }
+        public string? Dni { get; set; }
+        public string? ClientId { get; set; }
+        public System.DateTime? Birthdate { get; set; }
+        public ClientModels? Client { get; set; }
     }
 }

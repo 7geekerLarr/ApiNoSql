@@ -26,11 +26,14 @@ namespace ApiNoSqlApplication.Client.CommandHandlers
                 ClientId = request.ClientId,
                 Level = request.Level,
                 Tipo = request.Tipo,
-                Name = request.Name,
-                Lastname = request.Lastname,
-                Dni = request.Dni,
-                Birthdate = request.Birthdate,
-                NroCliente = request.NroCliente
+                Person = new PersonModels
+                {
+                    Name = request.Name,
+                    Lastname = request.Lastname,
+                    Dni = request.Dni,
+                    ClientId = request.ClientId,
+                    Birthdate = request.Birthdate
+                }
             };
             #endregion
             #region Validaciones
@@ -42,11 +45,11 @@ namespace ApiNoSqlApplication.Client.CommandHandlers
             {
                 throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "La estructura no es correcta!" + entity.ClientId });
             }
-            if (entity.ClientId == null || entity.Name == null)
+            if (entity.ClientId == null || entity.Person.Name == null)
             {
                 throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "La estructura no es correcta!" });
             }
-            if (entity.ClientId == "" || entity.Name == "")
+            if (entity.ClientId == "" || entity.Person.Name == "")
             {
                 throw new HandleException(HttpStatusCode.BadRequest, new { Cliente = "Campos obligatotios:IdSystem y Name, La estructura no es correcta!" });
             }

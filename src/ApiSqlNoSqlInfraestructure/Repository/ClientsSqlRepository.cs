@@ -1,5 +1,6 @@
 ﻿using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Data;
+using ApiNoSqlInfraestructure.Entitys;
 using Microsoft.EntityFrameworkCore;
 using IClients = ApiNoSqlInfraestructure.Services.IClients;
 
@@ -32,13 +33,16 @@ namespace ApiNoSqlInfraestructure.Repository
                     ClientId = entity.ClientId,
                     Level = entity.Level,
                     Tipo = entity.Tipo,
-                    Name = entity.Name,
-                    Lastname = entity.Lastname,
-                    Dni = entity.Dni,
-                    NroCliente= entity.NroCliente,
-                    Birthdate = entity.Birthdate
-
+                    Person = new PersonModels
+                    {
+                        Name = entity.Person?.Name,
+                        Lastname = entity.Person?.Lastname,
+                        Dni = entity.Person?.Dni,
+                        ClientId = entity.ClientId,
+                        Birthdate = entity.Person?.Birthdate ?? DateTime.MinValue
+                    }
                 };
+
                 await context.AddAsync(client);
                 await context.SaveChangesAsync();
                 return true;
@@ -55,12 +59,11 @@ namespace ApiNoSqlInfraestructure.Repository
         {
             try
             {
-                var client = await context.Clients.FirstOrDefaultAsync(c=> c.ClientId== Id);
+                var client = await context.Clients.FirstOrDefaultAsync(c => c.ClientId == Id);
                 return client;
             }
             catch (Exception)
             {
-
                 throw new NotImplementedException();
             }
         }
@@ -75,13 +78,17 @@ namespace ApiNoSqlInfraestructure.Repository
                 {
                     return false;
                 }
+
                 client.Level = entity.Level;
                 client.Tipo = entity.Tipo;
-                client.Name = entity.Name;
-                client.Lastname = entity.Lastname;
-                client.Dni = entity.Dni;
-                client.NroCliente = entity.NroCliente;
-                client.Birthdate = entity.Birthdate;
+                if (client.Person != null)
+                {
+                    client.Person.Name = entity.Person?.Name;
+                    client.Person.Lastname = entity.Person?.Lastname;
+                    client.Person.Dni = entity.Person?.Dni;
+                    client.Person.ClientId = entity.Person?.ClientId;
+                    client.Person.Birthdate = entity.Person?.Birthdate ?? DateTime.MinValue;
+                }
 
                 await context.SaveChangesAsync();
 
@@ -92,6 +99,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 return false;
             }
         }
+
 
         #endregion
         #region Del

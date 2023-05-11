@@ -25,11 +25,14 @@ namespace ApiNoSqlApplication.Client.CommandHandlers
                 ClientId = request.ClientId,
                 Level = request.Level,
                 Tipo = request.Tipo,
-                Name = request.Name,
-                Lastname = request.Lastname,
-                Dni = request.Dni,
-                Birthdate = request.Birthdate,
-                NroCliente = request.NroCliente
+                Person = new PersonModels
+                {
+                    Name = request.Name,
+                    Lastname = request.Lastname,
+                    Dni = request.Dni,
+                    ClientId = request.ClientId,
+                    Birthdate = request.Birthdate
+                }
             };
             #endregion
             #region Validations            
