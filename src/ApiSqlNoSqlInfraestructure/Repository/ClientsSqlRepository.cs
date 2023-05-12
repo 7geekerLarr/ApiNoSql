@@ -1,8 +1,9 @@
 ﻿using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Data;
-using ApiNoSqlInfraestructure.Entitys;
 using Microsoft.EntityFrameworkCore;
 using IClients = ApiNoSqlInfraestructure.Services.IClients;
+using System.Xml;
+using Newtonsoft.Json;
 
 namespace ApiNoSqlInfraestructure.Repository
 {
@@ -20,7 +21,12 @@ namespace ApiNoSqlInfraestructure.Repository
         #region GetAll
         public async Task<List<ClientModels>?> GetAll()
         {
-            return await context.Clients.ToListAsync();            
+            var clients = await context.Clients.Include(c => c.Person).ToListAsync();
+            var json = JsonConvert.SerializeObject(clients, Newtonsoft.Json.Formatting.None, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore 
+            });
+            return JsonConvert.DeserializeObject<List<ClientModels>>(json);
         }
         #endregion
         #region Add
@@ -59,21 +65,28 @@ namespace ApiNoSqlInfraestructure.Repository
         {
             try
             {
-                var client = await context.Clients.FirstOrDefaultAsync(c => c.ClientId == Id);
-                return client;
+                var client = await context.Clients.Include(c => c.Person).FirstOrDefaultAsync(c => c.ClientId == Id);
+                var json = JsonConvert.SerializeObject(client, Newtonsoft.Json.Formatting.None, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignora las referencias en bucle
+                });
+                return JsonConvert.DeserializeObject<ClientModels>(json);
             }
             catch (Exception)
             {
                 throw new NotImplementedException();
             }
         }
+
+
+
         #endregion
         #region Upd
         public async Task<bool> Upd(ClientModels entity)
         {
             try
             {
-                var client = await context.Clients.FindAsync(entity.ClientId);
+                var client = await context.Clients.Include(c => c.Person).FirstOrDefaultAsync(c => c.ClientId == entity.ClientId);
                 if (client == null)
                 {
                     return false;
@@ -81,13 +94,19 @@ namespace ApiNoSqlInfraestructure.Repository
 
                 client.Level = entity.Level;
                 client.Tipo = entity.Tipo;
-                if (client.Person != null)
+
+                if (client.Person == null)
                 {
-                    client.Person.Name = entity.Person?.Name;
-                    client.Person.Lastname = entity.Person?.Lastname;
-                    client.Person.Dni = entity.Person?.Dni;
-                    client.Person.ClientId = entity.Person?.ClientId;
-                    client.Person.Birthdate = entity.Person?.Birthdate ?? DateTime.MinValue;
+                    client.Person = new PersonModels();
+                }
+
+                if (entity.Person != null)
+                {
+                    // Actualizar propiedades de Person solo si entity.Person no es nulo
+                    client.Person.Name = entity.Person.Name;
+                    client.Person.Lastname = entity.Person.Lastname;
+                    client.Person.Dni = entity.Person.Dni;
+                    client.Person.Birthdate = entity.Person.Birthdate ?? DateTime.MinValue;
                 }
 
                 await context.SaveChangesAsync();
@@ -101,18 +120,29 @@ namespace ApiNoSqlInfraestructure.Repository
         }
 
 
+
+
+
+
         #endregion
         #region Del
         public async Task<bool> Del(string Id)
         {
             try
             {
-                var client = await context.Clients.FirstAsync(c => c.ClientId == Id, CancellationToken.None);
+                var client = await context.Clients.Include(c => c.Person).FirstOrDefaultAsync(c => c.ClientId == Id, CancellationToken.None);
                 if (client == null)
                 {
                     return false;
                 }
-                context.Remove(client);
+
+                if (client.Person != null)
+                {
+                    context.Remove(client.Person); // Eliminar la entidad Person asociada al cliente
+                }
+
+                context.Remove(client); // Eliminar el cliente
+
                 await context.SaveChangesAsync();
                 return true;
             }
@@ -121,6 +151,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 throw new NotImplementedException();
             }
         }
+
 
         #endregion
 

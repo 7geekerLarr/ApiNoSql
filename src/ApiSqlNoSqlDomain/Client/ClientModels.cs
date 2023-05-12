@@ -15,6 +15,7 @@ namespace ApiNoSqlDomain.Client
         public string? ClientId { get; set; }
         public int Level { get; set; }
         public string? Tipo { get; set; }
+        
         public PersonModels? Person { get; set; }
 
     }

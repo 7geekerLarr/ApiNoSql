@@ -68,8 +68,7 @@ namespace ApiNoSqlInfraestructure.Repository
                             Lastname = clientMDB.Person.Lastname,
                             Dni = clientMDB.Person.Dni,
                             ClientId = clientMDB.Person.ClientId,
-                            Birthdate = clientMDB.Person.Birthdate,
-                            Client = null // Asigna el valor según corresponda
+                            Birthdate = clientMDB.Person.Birthdate
                         } : null
                     };
                     return client;
@@ -81,6 +80,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 throw new NotImplementedException();
             }
         }
+
 
 
         #endregion
@@ -121,29 +121,30 @@ namespace ApiNoSqlInfraestructure.Repository
             {
                 var entityMDB = new ClientModelsMDB
                 {
-                    _id = ObjectId.Parse(entity.ClientId),
                     ClientId = entity.ClientId,
                     Level = entity.Level,
                     Tipo = entity.Tipo,
-                    Person = new PersonModelsMDB
-                    {
-                        Name = entity.Person?.Name,
-                        Lastname = entity.Person?.Lastname,
-                        Dni = entity.Person?.Dni,
-                        ClientId = entity.Person?.ClientId,
-                        Birthdate = entity.Person?.Birthdate ?? DateTime.MinValue
-                    }
+                    Person = new PersonModelsMDB()
                 };
 
-                var filter = Builders<ClientModelsMDB>.Filter.Eq("_id", entityMDB._id);
+                if (entity.Person != null)
+                {
+                    entityMDB.Person.Name = entity.Person.Name;
+                    entityMDB.Person.Lastname = entity.Person.Lastname;
+                    entityMDB.Person.Dni = entity.Person.Dni;
+                    entityMDB.Person.ClientId = entity.ClientId;  
+                    entityMDB.Person.Birthdate = entity.Person.Birthdate ?? DateTime.MinValue;
+                }
+
+                var filter = Builders<ClientModelsMDB>.Filter.Eq("ClientId", entityMDB.ClientId);
                 var update = Builders<ClientModelsMDB>.Update
                     .Set("Level", entityMDB.Level)
                     .Set("Tipo", entityMDB.Tipo)
-                    .Set("Person.Name", entityMDB.Person?.Name)
-                    .Set("Person.Lastname", entityMDB.Person?.Lastname)
-                    .Set("Person.Dni", entityMDB.Person?.Dni)
-                    .Set("Person.ClientId", entityMDB.Person?.ClientId)
-                    .Set("Person.Birthdate", entityMDB.Person?.Birthdate ?? DateTime.MinValue);
+                    .Set("Person.Name", entityMDB.Person.Name)
+                    .Set("Person.Lastname", entityMDB.Person.Lastname)
+                    .Set("Person.Dni", entityMDB.Person.Dni)
+                    .Set("Person.ClientId", entityMDB.Person.ClientId)
+                    .Set("Person.Birthdate", entityMDB.Person.Birthdate);
 
                 var result = await _collection.UpdateOneAsync(filter, update);
 
@@ -154,6 +155,8 @@ namespace ApiNoSqlInfraestructure.Repository
                 throw new NotImplementedException();
             }
         }
+
+
 
         #endregion
         #region Del

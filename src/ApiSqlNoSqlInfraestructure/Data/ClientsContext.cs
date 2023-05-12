@@ -16,17 +16,28 @@ namespace ApiNoSqlInfraestructure.Data
             modelBuilder.Entity<ClientModels>().HasKey(c => c.ClientId);
             modelBuilder.Entity<PersonModels>().HasKey(p => p.ClientId);
 
-            modelBuilder.Entity<PersonModels>()
-                .HasOne(p => p.Client)
-                .WithOne(c => c.Person)
-                .HasForeignKey<PersonModels>(p => p.ClientId)
-                .IsRequired();
+            //modelBuilder.Entity<PersonModels>()
+                //.HasOne(p => p.Client)
+                //.WithOne(c => c.Person)
+                //.HasForeignKey<PersonModels>(p => p.ClientId)
+                //.IsRequired();
 
-            modelBuilder.Entity<PersonModels>().HasKey(p => p.ClientId);
-            modelBuilder.Entity<PersonModels>().Property(p => p.Name).HasMaxLength(100);
-            modelBuilder.Entity<PersonModels>().Property(p => p.Lastname).HasMaxLength(100);
-            modelBuilder.Entity<PersonModels>().Property(p => p.Dni).HasMaxLength(20);
-            modelBuilder.Entity<PersonModels>().Property(p => p.Birthdate).HasColumnName("date");
+            modelBuilder.Entity<PersonModels>()
+                .Property(p => p.Name)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<PersonModels>()
+                .Property(p => p.Lastname)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<PersonModels>()
+                .Property(p => p.Dni)
+                .HasMaxLength(20);
+
+            modelBuilder.Entity<PersonModels>()
+                .Property(p => p.Birthdate)
+                .HasColumnName("Birthdate");
+
         }
 
         public void EnsureClientTableCreated()
