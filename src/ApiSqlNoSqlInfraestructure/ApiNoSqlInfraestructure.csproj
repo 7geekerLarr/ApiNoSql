@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.33.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="7.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0-preview.3.23174.8" />
     <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
 	<PackageReference Include="MongoDB.Driver" Version="2.19.1" />

@@ -6,7 +6,6 @@ using ApiNoSqlInfraestructure.Repository;
 using ApiNoSqlInfraestructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System;
 
@@ -19,12 +18,36 @@ builder.Services.AddDbContext<ClientsContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+//var configuration = builder.Configuration;
+//var cosmosDbEndpoint = configuration["CosmosDB:Endpoint"];
+//var cosmosDbAuthKey = configuration["CosmosDB:AuthKey"];
+//var cosmosDbDatabaseName = configuration["CosmosDB:DatabaseName"];
+//var cosmosDbContainerName = configuration["CosmosDB:ContainerName"];
+
+//if (!string.IsNullOrEmpty(cosmosDbEndpoint) && !string.IsNullOrEmpty(cosmosDbAuthKey) && !string.IsNullOrEmpty(cosmosDbDatabaseName) && !string.IsNullOrEmpty(cosmosDbContainerName))
+//{
+//    builder.Services.AddDbContext<ClientsCosmosDBContext>(options =>
+//    {
+//        options.UseCosmos(cosmosDbEndpoint, cosmosDbAuthKey, cosmosDbDatabaseName, cosmosOptions =>
+//        {
+//            // Aquí puedes agregar configuraciones específicas de Cosmos DB si es necesario
+//            cosmosOptions.ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode.Gateway);
+//        });
+//    });
+//}
+//else
+//{
+//    throw new Exception("Error de configuración: se requieren todos los valores de conexión a Cosmos DB.");
+//}
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Clients ", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Clients", Version = "v1" });
 });
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -40,6 +63,10 @@ if (clientsRepoConfig != null)
     else if (clientsRepoConfig.Type.ToString() == "MongoDB")
     {
         builder.Services.AddScoped<IClients, ClientsMongoRepository>();
+    }
+    else if (clientsRepoConfig.Type.ToString() == "CosmosDB")
+    {
+        builder.Services.AddScoped<IClients, ClientsCosmosRepository>();
     }
     else
     {
@@ -66,7 +93,7 @@ using (var scope = app.Services.CreateScope())
     // Generar la tabla "Client" si no existe
     context.Database.EnsureCreated();
 
-    Console.WriteLine("Tabla 'Clients' Se crea si no existe!");
+    Console.WriteLine("Tabla 'Clients' se crea si no existe!");
 }
 
 app.UseCors("corsApp");

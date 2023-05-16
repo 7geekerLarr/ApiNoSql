@@ -28,6 +28,10 @@ namespace ApiNoSqlInfraestructure.Services
             {
                 _clientsRepository = clientsMongoRepository;
             }
+            else if (repositoryConfig.Type == ClientsRepositoryConfiguration.RepositoryType.CosmosDB)
+            {
+                _clientsRepository = clientsMongoRepository;
+            }
             else
             {
                 throw new ArgumentException($"Tipo de repositorio no válido: {repositoryConfig.Type}", nameof(config));

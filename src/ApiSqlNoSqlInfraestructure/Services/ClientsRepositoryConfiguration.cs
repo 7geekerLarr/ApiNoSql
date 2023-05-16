@@ -11,7 +11,8 @@ namespace ApiNoSqlInfraestructure.Services
         public enum RepositoryType
         {
             SqlServer,
-            MongoDB
+            MongoDB,
+            CosmosDB
         }
 
         public RepositoryType Type { get; set; }
