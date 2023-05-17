@@ -9,14 +9,10 @@ namespace ApiNoSqlDomain.Client
         Otro =3,
     }
     public class ClientModels 
-    {
-
-       
+    {       
         public string? ClientId { get; set; }
         public int Level { get; set; }
-        public string? Tipo { get; set; }
-        
-        public PersonModels? Person { get; set; }
-        public string Id { get; set; }
+        public string? Tipo { get; set; }        
+        public PersonModels? Person { get; set; }        
     }
 }
