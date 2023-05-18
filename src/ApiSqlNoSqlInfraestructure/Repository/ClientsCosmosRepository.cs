@@ -30,27 +30,15 @@ namespace ApiNoSqlInfraestructure.Repository
             ContainerName = config.GetSection("CosmosDB:ContainerName").Value ?? throw new Exception("ContainerName is not configured.");
 
             cosmosClient = new CosmosClient(EndpointUri, PrimaryKey, new CosmosClientOptions() { ApplicationName = "API Clients" });
-            database = null;
-            container = null;
+            database = cosmosClient.GetDatabase(DatabaseName);
+            container = database.GetContainer(ContainerName);
         }
-        #endregion
-        #region EnsureDatabaseAndContainerCreatedAsync        
-        private async Task EnsureDatabaseAndContainerCreatedAsync()
-        {
-            if (database == null)
-                database = await cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseName);
-
-            if (container == null && database != null)
-                container = await database.CreateContainerIfNotExistsAsync(ContainerName, "/partitionKey");
-        }
-        #endregion
+        #endregion        
         #region GetAll
         public async Task<List<ClientModels>?> GetAll()
         {
-            await EnsureDatabaseAndContainerCreatedAsync();
-
             QueryDefinition queryDefinition = new QueryDefinition("SELECT * FROM c");
-            FeedIterator<ClientModels> queryResultSetIterator = this.container!.GetItemQueryIterator<ClientModels>(queryDefinition);
+            FeedIterator<ClientModels> queryResultSetIterator = container!.GetItemQueryIterator<ClientModels>(queryDefinition);
             List<ClientModels> results = new List<ClientModels>();
 
             while (queryResultSetIterator.HasMoreResults)
@@ -61,16 +49,14 @@ namespace ApiNoSqlInfraestructure.Repository
 
             return results;
         }
+
         #endregion
         #region GetOne
         public async Task<ClientModels?> GetOne(string ClientId)
         {
-            await EnsureDatabaseAndContainerCreatedAsync();
-
-            // Consulta para encontrar el documento con el ClientId específico
             QueryDefinition queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.ClientId = @ClientId")
                 .WithParameter("@ClientId", ClientId);
-            FeedIterator<ClientModels> queryResultSetIterator = this.container!.GetItemQueryIterator<ClientModels>(queryDefinition);
+            FeedIterator<ClientModels> queryResultSetIterator = container!.GetItemQueryIterator<ClientModels>(queryDefinition);
 
             if (queryResultSetIterator.HasMoreResults)
             {
@@ -84,8 +70,7 @@ namespace ApiNoSqlInfraestructure.Repository
         #endregion
         #region Add       
         public async Task<bool> Add(ClientModels entity)
-        {
-            await EnsureDatabaseAndContainerCreatedAsync();
+        {           
 
             var client = new ClientModelsCOSMODB
             {
@@ -112,7 +97,7 @@ namespace ApiNoSqlInfraestructure.Repository
         #region Upd
         public async Task<bool> Upd(ClientModels entity)
         {
-            await EnsureDatabaseAndContainerCreatedAsync();
+            //await EnsureDatabaseAndContainerCreatedAsync();
 
             var client = new ClientModelsCOSMODB
             {
@@ -138,7 +123,7 @@ namespace ApiNoSqlInfraestructure.Repository
             if (queryResultSetIterator.HasMoreResults)
             {
                 FeedResponse<ClientModelsCOSMODB> currentResultSet = await queryResultSetIterator.ReadNextAsync();
-                ClientModelsCOSMODB existingClient = currentResultSet.FirstOrDefault();
+                ClientModelsCOSMODB existingClient = currentResultSet.FirstOrDefault() ?? new ClientModelsCOSMODB();
 
                 if (existingClient != null)
                 {
@@ -152,13 +137,9 @@ namespace ApiNoSqlInfraestructure.Repository
             return false;
         }
         #endregion
-        #region Del
-        
+        #region Del        
         public async Task<bool> Del(string ClientId)
         {
-            await EnsureDatabaseAndContainerCreatedAsync();
-
-            // Consulta para encontrar el documento con el ClientId específico
             QueryDefinition queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.ClientId = @ClientId")
                 .WithParameter("@ClientId", ClientId);
             FeedIterator<ClientModelsCOSMODB> queryResultSetIterator = this.container!.GetItemQueryIterator<ClientModelsCOSMODB>(queryDefinition);
@@ -166,23 +147,23 @@ namespace ApiNoSqlInfraestructure.Repository
             if (queryResultSetIterator.HasMoreResults)
             {
                 FeedResponse<ClientModelsCOSMODB> currentResultSet = await queryResultSetIterator.ReadNextAsync();
-                if (currentResultSet.Any())
-                {
-                    ClientModelsCOSMODB existingClient = currentResultSet.FirstOrDefault();
+                ClientModelsCOSMODB existingClient = currentResultSet.FirstOrDefault() ?? new ClientModelsCOSMODB();
 
-                    PartitionKey partitionKey = new PartitionKey(existingClient.ClientId);
-                    ItemResponse<ClientModelsCOSMODB> response = await this.container!.DeleteItemAsync<ClientModelsCOSMODB>(existingClient.Id, partitionKey);
-                    return response.StatusCode == System.Net.HttpStatusCode.NoContent;
+                if (existingClient != null)
+                {
+                    string existingClientId = existingClient.Id!;
+                    string existingPartitionKey = existingClient.ClientId!;
+
+                    if (!string.IsNullOrEmpty(existingClientId) && !string.IsNullOrEmpty(existingPartitionKey))
+                    {
+                        ItemResponse<ClientModelsCOSMODB> response = await this.container!.DeleteItemAsync<ClientModelsCOSMODB>(existingClientId, new PartitionKey(existingPartitionKey));
+                        return response.StatusCode == System.Net.HttpStatusCode.NoContent;
+                    }
                 }
             }
 
             return false;
         }
-
-
-
-
-
 
 
 

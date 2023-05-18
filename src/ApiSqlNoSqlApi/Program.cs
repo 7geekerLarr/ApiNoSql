@@ -5,9 +5,9 @@ using ApiNoSqlInfraestructure.Data;
 using ApiNoSqlInfraestructure.Repository;
 using ApiNoSqlInfraestructure.Services;
 using MediatR;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: true);
@@ -19,39 +19,6 @@ builder.Services.AddDbContext<ClientsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-//var configuration = builder.Configuration;
-//var cosmosDbEndpoint = configuration["CosmosDB:Endpoint"];
-//var cosmosDbAuthKey = configuration["CosmosDB:AuthKey"];
-//var cosmosDbDatabaseName = configuration["CosmosDB:DatabaseName"];
-//var cosmosDbContainerName = configuration["CosmosDB:ContainerName"];
-
-//if (!string.IsNullOrEmpty(cosmosDbEndpoint) && !string.IsNullOrEmpty(cosmosDbAuthKey) && !string.IsNullOrEmpty(cosmosDbDatabaseName) && !string.IsNullOrEmpty(cosmosDbContainerName))
-//{
-//    builder.Services.AddDbContext<ClientsCosmosDBContext>(options =>
-//    {
-//        options.UseCosmos(cosmosDbEndpoint, cosmosDbAuthKey, cosmosDbDatabaseName, cosmosOptions =>
-//        {
-//            // Aquí puedes agregar configuraciones específicas de Cosmos DB si es necesario
-//            cosmosOptions.ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode.Gateway);
-//        });
-//    });
-//}
-//else
-//{
-//    throw new Exception("Error de configuración: se requieren todos los valores de conexión a Cosmos DB.");
-//}
-
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Clients", Version = "v1" });
-});
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-// Configure ClientsRepositoryConfiguration
 var clientsRepoConfig = builder.Configuration.GetSection("ClientsRepositoryConfiguration")?.Get<ClientsRepositoryConfiguration>();
 
 if (clientsRepoConfig != null)
@@ -67,6 +34,13 @@ if (clientsRepoConfig != null)
     else if (clientsRepoConfig.Type.ToString() == "CosmosDB")
     {
         builder.Services.AddScoped<IClients, ClientsCosmosRepository>();
+        builder.Services.AddSingleton<CosmosClient>(sp =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var endpointUri = config.GetSection("CosmosDB:EndpointUri").Value ?? throw new Exception("EndpointUri is not configured.");
+            var primaryKey = config.GetSection("CosmosDB:PrimaryKey").Value ?? throw new Exception("PrimaryKey is not configured.");
+            return new CosmosClient(endpointUri, primaryKey, new CosmosClientOptions() { ApplicationName = "API Clients" });
+        });
     }
     else
     {
@@ -78,10 +52,13 @@ else
     throw new Exception("ClientsRepositoryConfiguration section not found in configuration file.");
 }
 
-builder.Services.AddCors(o => o.AddPolicy("corsApp", builder =>
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
 {
-    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-}));
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Clients", Version = "v1" });
+});
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 
@@ -93,13 +70,11 @@ using (var scope = app.Services.CreateScope())
     // Generar la tabla "Client" si no existe
     context.Database.EnsureCreated();
 
-    Console.WriteLine("Tabla 'Clients' se crea si no existe!");
+    Console.WriteLine("Tablas 'Clients' se crea si no existe!");
 }
 
-app.UseCors("corsApp");
 app.UseMiddleware<HandleErrorMiddleware>();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -111,4 +86,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+    var databaseName = builder.Configuration.GetSection("CosmosDB:DatabaseName").Value ?? throw new Exception("DatabaseName is not configured.");
+    var containerName = builder.Configuration.GetSection("CosmosDB:ContainerName").Value ?? throw new Exception("ContainerName is not configured.");
+
+    var databaseResponse = await cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
+    var containerResponse = await databaseResponse.Database.CreateContainerIfNotExistsAsync(containerName, "/partitionKey");
+}
+
+
 app.Run();
