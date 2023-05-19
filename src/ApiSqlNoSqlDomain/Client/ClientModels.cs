@@ -11,7 +11,8 @@ namespace ApiNoSqlDomain.Client
     public class ClientModels 
     {       
         public string? ClientId { get; set; }
-        public int Level { get; set; }
+        public LevelClient Level { get; set; }
+        public string? LevelName => Enum.GetName(typeof(LevelClient), Level); 
         public string? Tipo { get; set; }        
         public PersonModels? Person { get; set; }        
     }

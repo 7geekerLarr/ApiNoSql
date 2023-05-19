@@ -1,5 +1,6 @@
 ﻿using ApiNoSqlApplication.Client.Commands;
 using ApiNoSqlApplication.HandleError;
+using ApiNoSqlApplication.Helper;
 using ApiNoSqlDomain.Client;
 using MediatR;
 using System.Net;
@@ -19,11 +20,14 @@ namespace ApiNoSqlApplication.Client.CommandHandlers
         #region Handle           
         public async Task<ClientModels> Handle(UpdateClientCommand request, CancellationToken cancellationToken)
         {
-            #region entity           
+            #region entity   
+            int levelValue = (int)request.Level; // El valor numérico del nivel
+            HelperLevel helperLevel = new HelperLevel(levelValue);
+            LevelClient levelTipo = helperLevel.GetLevelTipo();
             var entity = new ClientModels()
             {
                 ClientId = request.ClientId,
-                Level = request.Level,
+                Level = levelTipo,
                 Tipo = request.Tipo,
                 Person = new PersonModels
                 {

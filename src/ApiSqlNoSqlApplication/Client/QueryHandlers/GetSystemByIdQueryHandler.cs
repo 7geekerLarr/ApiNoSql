@@ -3,6 +3,7 @@ using ApiNoSqlApplication.HandleError;
 using ApiNoSqlDomain.Client;
 using ApiNoSqlInfraestructure.Services;
 using MediatR;
+using SharpCompress.Common;
 using System.Net;
 
 namespace ApiNoSqlApplication.Client.QueryHandlers
@@ -31,6 +32,10 @@ namespace ApiNoSqlApplication.Client.QueryHandlers
             {
                 throw new HandleException(HttpStatusCode.NotFound, new { Cliente = "cliente no encontrado" });
             }
+
+
+            
+
             return result;
         }
         #endregion

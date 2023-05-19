@@ -30,6 +30,7 @@ namespace ApiNoSqlInfraestructure.AutoMapper
                  Name = src.Person.Name,
                  Lastname = src.Person.Lastname,
                  Dni = src.Person.Dni,
+                 ClientId = src.Person.ClientId,
                  Birthdate = src.Person.Birthdate ?? new DateTime()
              } : null));
 

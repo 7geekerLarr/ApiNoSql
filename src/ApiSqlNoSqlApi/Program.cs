@@ -86,17 +86,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
+if (clientsRepoConfig.Type.ToString() == "CosmosDB")
 {
-    var serviceProvider = scope.ServiceProvider;
-    var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
-    var databaseName = builder.Configuration.GetSection("CosmosDB:DatabaseName").Value ?? throw new Exception("DatabaseName is not configured.");
-    var containerName = builder.Configuration.GetSection("CosmosDB:ContainerName").Value ?? throw new Exception("ContainerName is not configured.");
+    using (var scope = app.Services.CreateScope())
+    {
+        var serviceProvider = scope.ServiceProvider;
+        var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+        var databaseName = builder.Configuration.GetSection("CosmosDB:DatabaseName").Value ?? throw new Exception("DatabaseName is not configured.");
+        var containerName = builder.Configuration.GetSection("CosmosDB:ContainerName").Value ?? throw new Exception("ContainerName is not configured.");
 
-    var databaseResponse = await cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
-    var containerResponse = await databaseResponse.Database.CreateContainerIfNotExistsAsync(containerName, "/partitionKey");
+        var databaseResponse = await cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
+        var containerResponse = await databaseResponse.Database.CreateContainerIfNotExistsAsync(containerName, "/partitionKey");
+    }
 }
-
 
 app.Run();

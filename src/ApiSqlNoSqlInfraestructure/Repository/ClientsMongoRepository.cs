@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SharpCompress.Common;
 using System.Net;
 using System.Threading;
 
@@ -60,14 +61,14 @@ namespace ApiNoSqlInfraestructure.Repository
                     var client = new ClientModels
                     {
                         ClientId = clientMDB.ClientId,
-                        Level = clientMDB.Level,
+                        Level = (LevelClient)clientMDB.Level,
                         Tipo = clientMDB.Tipo,
                         Person = clientMDB.Person != null ? new PersonModels
                         {
                             Name = clientMDB.Person.Name,
                             Lastname = clientMDB.Person.Lastname,
                             Dni = clientMDB.Person.Dni,
-                            ClientId = clientMDB.Person.ClientId,
+                            ClientId = clientMDB.ClientId,
                             Birthdate = clientMDB.Person.Birthdate
                         } : null
                     };
@@ -92,7 +93,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 var client = new ClientModelsMDB
                 {
                     ClientId = entity.ClientId,
-                    Level = entity.Level,
+                    Level = (int)entity.Level,
                     Tipo = entity.Tipo,
                     Person = new PersonModelsMDB
                     {
@@ -122,7 +123,7 @@ namespace ApiNoSqlInfraestructure.Repository
                 var entityMDB = new ClientModelsMDB
                 {
                     ClientId = entity.ClientId,
-                    Level = entity.Level,
+                    Level = (int)entity.Level,
                     Tipo = entity.Tipo,
                     Person = new PersonModelsMDB()
                 };

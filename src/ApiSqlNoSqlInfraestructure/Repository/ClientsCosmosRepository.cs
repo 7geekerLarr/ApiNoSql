@@ -76,7 +76,7 @@ namespace ApiNoSqlInfraestructure.Repository
             {
                 Id = Guid.NewGuid().ToString(),  // Asigna un nuevo ID único al documento
                 ClientId = entity.ClientId,
-                Level = entity.Level,
+                Level =  (int)entity.Level,
                 Tipo = entity.Tipo,
                 PartitionKey = entity.ClientId,
                 Person = new PersonModelsCOSMODB
@@ -101,7 +101,7 @@ namespace ApiNoSqlInfraestructure.Repository
 
             var client = new ClientModelsCOSMODB
             {
-                Level = entity.Level,
+                Level = (int)entity.Level,
                 Tipo = entity.Tipo,
                 ClientId = entity.ClientId,
                 PartitionKey= entity.ClientId,
